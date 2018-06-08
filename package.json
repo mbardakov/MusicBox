@@ -1,0 +1,11 @@
+{
+  "name": "boxes",
+  "version": "1.0.0",
+  "description": "procedurally generates abstract pixel art based on song lyrics",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Max Bardakov",
+  "license": "MIT"
+}
