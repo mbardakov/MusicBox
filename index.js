@@ -1,31 +1,5 @@
 var PixelArt = require('pixel-art');
 
-// todo: figure out how to put this in a separate file
-let stringToSquare = (word) => {
-    let length = word.length;
-    let box = new Array(length);
-    for (let i = 0; i < length; i++){
-        box[i] = new Array(length);
-    }
-
-    for (let i = 0; i < length; i++){
-        for (let j = 0; j < length; j++){
-            if (word[i] === word[j]){
-                box[i][j] = word[i];
-            } else {
-                box[i][j] = ' ';
-            }
-        }
-    }
-
-    boxAsString = '';
-    for (let i = 0; i < length; i++){
-        boxAsString = boxAsString.concat(box[i].join(''));
-        boxAsString = boxAsString.concat('\n');
-    }
-
-    return boxAsString;
-}
 
 // var nyan = PixelArt.art(`\
 //                   BBBBBBBBBBBBBBBBB
@@ -79,6 +53,8 @@ let stringToSquare = (word) => {
 // image.src = nyan.export();
 // document.querySelector('#image').appendChild(image);
 
+
+// todo: come up with a nicer palette
 let defaultPalette = {
     'r': 'red',
     'o': 'orange',
@@ -94,8 +70,84 @@ let defaultPalette = {
     '^': 'white'
 }
 
+let bwPalette = {
+    '1': 'black',
+    '0': 'white'
+}
+
+let chosenPalette = defaultPalette;
+
+// given a string, e.g. 'abcdacdc'
+// returns a square with the same string along the top and sides:
+// abcdacdc
+// b
+// c
+// d
+// a
+// c
+// d
+// c
+
+// fills the square in wherever the letter along the top and along the side match
+// i.e.
+// a
+//  b
+//   c  c c
+//    d  d
+//     a
+//   c  c d
+//    d  d
+//   c  c c
+
+// question: leave original word along top/side?
+let stringToSquare = (word) => {
+    let length = word.length;
+    let box = new Array(length);
+    for (let i = 0; i < length; i++){
+        box[i] = new Array(length);
+    }
+
+    for (let i = 0; i < length; i++){
+        for (let j = 0; j < length; j++){
+            if (word[i] === word[j]){
+                box[i][j] = word[i];
+            } else {
+                box[i][j] = ' ';
+            }
+        }
+    }
+
+    boxAsString = '';
+    for (let i = 0; i < length; i++){
+        boxAsString = boxAsString.concat(box[i].join(''));
+        boxAsString = boxAsString.concat('\n');
+    }
+    return boxAsString;
+}
+
+// takes in song lyrics as an array of words
+// outputs a string with each word mapped to a letter from the palette
+// (i.e. input to drawPixelArt)
+// e.g. [players, gonna, play, play, play, play, play] =>
+// 'royyyyy'
+let crunchWords = (words) => {
+    let paletteIndex = 0;
+    let palette = Object.keys(chosenPalette);
+    let pixelMap = [];
+    // generate mapping of words => letters
+    for (let word of words){
+        if (!pixelMap[word]){
+            pixelMap[word] = palette[paletteIndex];
+            paletteIndex = (paletteIndex + 1) % palette.length; 
+            // loop back around once you run out of colours
+        }
+    }
+    // iterate over lyrics, applying mapping
+    return words.map(word => pixelMap[word]).join('');
+}
+
 let drawPixelArt = (word) => {
-    let testbox = PixelArt.art(stringToSquare(word)).palette(defaultPalette)
+    let testbox = PixelArt.art(stringToSquare(word)).palette(chosenPalette)
         .pos({ x: 0, y: 0 }).scale(6).draw(canvas.getContext('2d'));
     
     var image = document.createElement('img')
@@ -103,10 +155,11 @@ let drawPixelArt = (word) => {
     document.querySelector('#image').appendChild(image);
 }
 
-drawPixelArt("roryboy");
-
-var randomTest = () => {
-    let possibleLetters = "roybgmB";
+// adds pixels to the screen
+// problem: doesn't remove them afterwards, so they just pile up
+let randomTest = () => {
+    chosenPalette = defaultPalette;
+    let possibleLetters = "roybgm";
     let randomWord = "";
     for (let i = 0; i < 32; i++){
         randomWord = randomWord.concat(possibleLetters.substr(Math.floor(Math.random() * possibleLetters.length)), 1);
@@ -114,7 +167,48 @@ var randomTest = () => {
     drawPixelArt(randomWord);
 }
 
+let runTests = () => {
+    let tests = [
+        unitTest('stringSquare base case', () => {
+            return stringToSquare('a')
+        }, 'a\n'),
+        
+        unitTest('stringSquare 2x2', () => {
+            return stringToSquare('ab')
+        }, 'a \n b\n'),
+        
+        unitTest('stringSquare 3x3 1 repeat', () => {
+            return stringToSquare('aba')
+        }, 'a a\n b \na a\n'),
+        
+        unitTest('shake default', () => {
+            chosenPalette = defaultPalette;
+            return crunchWords(['players', 'gonna', 'play', 'play', 'play', 'play', 'play']);
+        }, 'royyyyy'),
+        
+        unitTest('shake bw', () => {
+            chosenPalette = bwPalette;
+            return crunchWords(['players', 'gonna', 'play', 'play', 'play', 'play', 'play']);
+        }, '0100000')
+    ]
+
+    let allTestsPass = tests.reduce((acc, cur)=>acc && cur);
+    if (allTestsPass){
+        console.log('all unit tests pass!');
+    }
+}
+
+// given a test (function), with a name and an expected value,
+// executes the test, then prints an error message if the expected value
+// differs from the result
+// test must take no parameters (can be wrapped in an arrow function prior to being sent to unitTest)
+let unitTest = (name, test, expected) => {
+    if (test() !== expected){
+        console.error(`Unit test ${name} failed, result "${test()}" differs from expected result "${expected}"`);
+        return false;
+    }
+    return true;
+}
 document.getElementById("clickMe").addEventListener("click", randomTest, false);
 
-// todo: condense lyrics (words) into a mash of letters
-// give it a nice UI
+runTests();
