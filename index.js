@@ -62,7 +62,7 @@ let defaultPalette = {
     'g': '#0f0',
     'b': '#55f',
     'm': '#909',
-    'B': 'black',
+    // 'B': 'black',
     '.': '#ddd',
     '-': '#ffa',
     '*': '#f8e',
@@ -76,6 +76,34 @@ let bwPalette = {
 }
 
 let chosenPalette = defaultPalette;
+
+let stripPunctuation = (inputString) => {
+    console.log('stripPunctuation', inputString);
+    return inputString.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+}
+
+// takes in song lyrics as an array of words
+// outputs a string with each word mapped to a letter from the palette
+// (i.e. input to drawPixelArt)
+// e.g. [players, gonna, play, play, play, play, play] =>
+// 'royyyyy'
+let crunchWords = (words) => {
+    console.log('crunchWords', words);
+    let paletteIndex = 0;
+    let palette = Object.keys(chosenPalette);
+    let pixelMap = [];
+    // generate mapping of words => letters
+    for (let word of words){
+        if (!pixelMap[word]){
+            pixelMap[word] = palette[paletteIndex];
+            paletteIndex = (paletteIndex + 1) % palette.length; 
+            // loop back around once you run out of colours
+        }
+    }
+    // iterate over lyrics, applying mapping
+    console.log('crunchWords pixelmap: ', pixelMap)
+    return words.map(word => pixelMap[word]).join('');
+}
 
 // given a string, e.g. 'abcdacdc'
 // returns a square with the same string along the top and sides:
@@ -101,6 +129,7 @@ let chosenPalette = defaultPalette;
 
 // question: leave original word along top/side?
 let stringToSquare = (word) => {
+    console.log('stringToSquare', word);
     let length = word.length;
     let box = new Array(length);
     for (let i = 0; i < length; i++){
@@ -125,34 +154,14 @@ let stringToSquare = (word) => {
     return boxAsString;
 }
 
-// takes in song lyrics as an array of words
-// outputs a string with each word mapped to a letter from the palette
-// (i.e. input to drawPixelArt)
-// e.g. [players, gonna, play, play, play, play, play] =>
-// 'royyyyy'
-let crunchWords = (words) => {
-    let paletteIndex = 0;
-    let palette = Object.keys(chosenPalette);
-    let pixelMap = [];
-    // generate mapping of words => letters
-    for (let word of words){
-        if (!pixelMap[word]){
-            pixelMap[word] = palette[paletteIndex];
-            paletteIndex = (paletteIndex + 1) % palette.length; 
-            // loop back around once you run out of colours
-        }
-    }
-    // iterate over lyrics, applying mapping
-    return words.map(word => pixelMap[word]).join('');
-}
-
 let drawPixelArt = (word) => {
+    console.log('drawPixelArt: ', word);
     let testbox = PixelArt.art(stringToSquare(word)).palette(chosenPalette)
-        .pos({ x: 0, y: 0 }).scale(6).draw(canvas.getContext('2d'));
+        .pos({ x: 0, y: 0 }).scale(4).draw(canvas.getContext('2d'));
     
-    var image = document.createElement('img')
-    image.src = testbox.export();
-    document.querySelector('#image').appendChild(image);
+    // var image = document.createElement('img')
+    // image.src = testbox.export();
+    // document.querySelector('#image').appendChild(image);
 }
 
 // adds pixels to the screen
@@ -209,6 +218,21 @@ let unitTest = (name, test, expected) => {
     }
     return true;
 }
-document.getElementById("clickMe").addEventListener("click", randomTest, false);
+
+let bindUIElements = () => {
+    document.getElementById("clickMe").addEventListener("click", randomTest, false);
+    document.getElementById("start").addEventListener("click", ()=>{
+        let lyrics = document.getElementById("lyrics").value;
+        console.log("running on: ", lyrics);
+        drawPixelArt(crunchWords(stripPunctuation(lyrics.toLowerCase()).split(' ')));
+    });
+}
+
+let go = () => {
+
+}
 
 runTests();
+
+chosenPalette = defaultPalette;
+bindUIElements();
