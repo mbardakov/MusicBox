@@ -78,7 +78,7 @@ let bwPalette = {
 let chosenPalette = defaultPalette;
 
 let stripPunctuation = (inputString) => {
-    console.log('stripPunctuation', inputString);
+    // console.log('stripPunctuation', inputString);
     return inputString.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
 }
 
@@ -88,21 +88,25 @@ let stripPunctuation = (inputString) => {
 // e.g. [players, gonna, play, play, play, play, play] =>
 // 'royyyyy'
 let crunchWords = (words) => {
-    console.log('crunchWords', words);
+    // console.log('crunchWords', words);
     let paletteIndex = 0;
     let palette = Object.keys(chosenPalette);
+    // console.log('palette', palette);
     let pixelMap = [];
     // generate mapping of words => letters
     for (let word of words){
-        if (!pixelMap[word]){
+        if (Object.keys(pixelMap).indexOf(word) < 0){
             pixelMap[word] = palette[paletteIndex];
             paletteIndex = (paletteIndex + 1) % palette.length; 
             // loop back around once you run out of colours
         }
     }
     // iterate over lyrics, applying mapping
-    console.log('crunchWords pixelmap: ', pixelMap)
-    return words.map(word => pixelMap[word]).join('');
+    // console.log('crunchWords pixelmap: ', pixelMap)
+    return words.map(word => {
+        // console.log('crunchWords mapping: ', word, pixelMap[word]);
+        return pixelMap[word]
+    }).join('');
 }
 
 // given a string, e.g. 'abcdacdc'
@@ -129,7 +133,7 @@ let crunchWords = (words) => {
 
 // question: leave original word along top/side?
 let stringToSquare = (word) => {
-    console.log('stringToSquare', word);
+    // console.log('stringToSquare', word);
     let length = word.length;
     let box = new Array(length);
     for (let i = 0; i < length; i++){
@@ -155,7 +159,7 @@ let stringToSquare = (word) => {
 }
 
 let drawPixelArt = (word) => {
-    console.log('drawPixelArt: ', word);
+    // console.log('drawPixelArt: ', word);
     let testbox = PixelArt.art(stringToSquare(word)).palette(chosenPalette)
         .pos({ x: 0, y: 0 }).scale(4).draw(canvas.getContext('2d'));
     
