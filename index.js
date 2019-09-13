@@ -160,6 +160,10 @@ let stringToSquare = (word) => {
 
 let drawPixelArt = (word) => {
     // console.log('drawPixelArt: ', word);
+
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
     let testbox = PixelArt.art(stringToSquare(word)).palette(chosenPalette)
         .pos({ x: 0, y: 0 }).scale(4).draw(canvas.getContext('2d'));
     
@@ -227,7 +231,6 @@ let bindUIElements = () => {
     document.getElementById("clickMe").addEventListener("click", randomTest, false);
     document.getElementById("start").addEventListener("click", ()=>{
         let lyrics = document.getElementById("lyrics").value;
-        console.log("running on: ", lyrics);
         drawPixelArt(crunchWords(stripPunctuation(lyrics.toLowerCase()).split(' ')));
     });
 }
