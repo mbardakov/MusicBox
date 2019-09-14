@@ -95,7 +95,7 @@ let crunchWords = (words) => {
     let pixelMap = [];
     // generate mapping of words => letters
     for (let word of words){
-        if (Object.keys(pixelMap).indexOf(word) < 0){
+        if (!pixelMap[word]){
             pixelMap[word] = palette[paletteIndex];
             paletteIndex = (paletteIndex + 1) % palette.length; 
             // loop back around once you run out of colours
@@ -229,14 +229,12 @@ let unitTest = (name, test, expected) => {
 
 let bindUIElements = () => {
     document.getElementById("clickMe").addEventListener("click", randomTest, false);
-    document.getElementById("start").addEventListener("click", ()=>{
-        let lyrics = document.getElementById("lyrics").value;
-        drawPixelArt(crunchWords(stripPunctuation(lyrics.toLowerCase()).split(' ')));
-    });
+    document.getElementById("start").addEventListener("click", go, false);
 }
 
 let go = () => {
-
+    let lyrics = document.getElementById("lyrics").value;
+    drawPixelArt(crunchWords(stripPunctuation(lyrics.toUpperCase()).split(' ')));
 }
 
 runTests();
