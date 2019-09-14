@@ -1,0 +1,32 @@
+h1 {
+    color: #ffffff
+}
+
+body {
+    background: #363636;
+    font-family: 'Roboto', sans-serif;
+    /* font-weight: 100; */
+    letter-spacing: 2px;
+}
+
+#content {
+    max-width: 70%;
+    margin: 0 auto;
+}
+
+#canvas {
+    display:block;
+    margin: 0 auto;
+}
+
+#flex-container {
+    display: flex;
+}
+
+#lyrics {
+    width: 100%;
+}
+
+.mb-button {
+    margin-left: 0.4rem;
+}
