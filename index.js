@@ -1,5 +1,72 @@
 var PixelArt = require('pixel-art');
 
+let searchSongs = (query) => {
+    $.ajax({
+        type: "GET",
+        data: {
+            apikey:"445d6196c08dc2b7490929f18149d684",
+            q: query,
+            format:"jsonp",
+            callback:"jsonp_callback",
+            page_size: 100,
+        },
+        url: "https://api.musixmatch.com/ws/1.1/track.search",
+        dataType: "jsonp",
+        jsonpCallback: 'jsonp_callback',
+        contentType: 'application/json',
+        /*success: function(data) {
+            console.log("success: ", data);
+        }
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR);
+            console.log(textStatus);
+            console.log(errorThrown);
+        }*/    
+    }).then((res)=>{
+        let track_id = null;
+        console.log("promise resolved: ", res);
+        for (let track of res.message.body.track_list){
+            if (track.has_lyrics === 1){
+                track_id = track.track_id;
+                break;
+            }
+        }
+        if (track_id !== null){
+            console.log("search matched track ID: ", track_id);
+            getLyrics(track_id);
+        }
+    });
+}
+
+searchSongs("Taylor Swift - Style");
+
+let getLyrics = (track_id) => {
+    $.ajax({
+        type: "GET",
+        data: {
+            apikey:"445d6196c08dc2b7490929f18149d684",
+            track_id: track_id,
+            format:"jsonp",
+            callback:"jsonp_callback",
+        },
+        url: "https://api.musixmatch.com/ws/1.1/track.lyrics.get",
+        dataType: "jsonp",
+        jsonpCallback: 'jsonp_callback',
+        contentType: 'application/json',
+        /*success: function(data) {
+            console.log("success: ", data);
+        }
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR);
+            console.log(textStatus);
+            console.log(errorThrown);
+        }*/    
+    }).then((res)=>{
+        console.log("got lyrics: ", track_id, res);
+    });
+}
+
+getLyrics(78088047);
 
 // var nyan = PixelArt.art(`\
 //                   BBBBBBBBBBBBBBBBB
